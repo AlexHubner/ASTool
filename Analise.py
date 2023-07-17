@@ -3,24 +3,33 @@ import csv
 import difflib
 
 # Função para comparar as ASTs em pares e armazenar as diferenças em um arquivo CSV
-def comparar_ast(arquivos, arquivo_csv):
-    with open(arquivo_csv, 'w', newline='') as csvfile:
-        fieldnames = ['Arquivo', 'Arquivo Comparado', 'Nó Modificado', 'Profundidade']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
+def comparar_ast(arquivos, pasta_resultados):
+    for i in range(len(arquivos) - 1):
+        arquivo_antigo = arquivos[i]
+        arquivo_novo = arquivos[i + 1]
 
-        for i in range(len(arquivos) - 1):
-            arquivo_antigo = arquivos[i]
-            arquivo_novo = arquivos[i + 1]
+        with open(arquivo_antigo, 'r') as file_antigo, open(arquivo_novo, 'r') as file_novo:
+            linhas_antigo = file_antigo.readlines()
+            linhas_novo = file_novo.readlines()
 
-            with open(arquivo_antigo, 'r') as file_antigo, open(arquivo_novo, 'r') as file_novo:
-                linhas_antigo = file_antigo.readlines()
-                linhas_novo = file_novo.readlines()
+            diff = difflib.unified_diff(linhas_antigo, linhas_novo, lineterm='')
+            mudancas = list(diff)
 
-                diff = difflib.unified_diff(linhas_antigo, linhas_novo, lineterm='')
-                mudancas = list(diff)
+            if mudancas:
+                nome_pasta_antigo = os.path.basename(os.path.dirname(arquivo_antigo))
+                nome_pasta_novo = os.path.basename(os.path.dirname(arquivo_novo))
 
-                if mudancas:
+                # Criar o nome do arquivo de resultado
+                nome_arquivo_resultado = f'resultado_{nome_pasta_novo}.csv'
+
+                # Caminho completo para o arquivo de resultado
+                caminho_arquivo_resultado = os.path.join(pasta_resultados, nome_arquivo_resultado)
+
+                with open(caminho_arquivo_resultado, 'w', newline='') as csvfile:
+                    fieldnames = ['Arquivo', 'Arquivo Comparado', 'Nó Modificado', 'Profundidade']
+                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                    writer.writeheader()
+
                     for linha in mudancas:
                         if linha.startswith('+'):
                             # Identificar o nó alterado
@@ -30,8 +39,8 @@ def comparar_ast(arquivos, arquivo_csv):
                             profundidade = no_alterado.count('  ')
 
                             if profundidade > 0:
-                                writer.writerow({'Arquivo': os.path.basename(arquivo_novo),
-                                                 'Arquivo Comparado': os.path.basename(arquivo_antigo),
+                                writer.writerow({'Arquivo': nome_pasta_novo,
+                                                 'Arquivo Comparado': nome_pasta_antigo,
                                                  'Nó Modificado': no_alterado,
                                                  'Profundidade': profundidade})
 
@@ -43,13 +52,23 @@ if not os.path.isdir(pasta):
     print("Caminho inválido!")
     exit(1)
 
-# Obter a lista de arquivos de texto na pasta
-arquivos_ast = sorted([os.path.join(pasta, arquivo) for arquivo in os.listdir(pasta) if arquivo.endswith('.txt')])
+# Solicitar o caminho da pasta para os resultados
+pasta_resultados = input("Digite o caminho da pasta para armazenar os resultados: ")
 
-# Caminho do arquivo CSV para armazenar os resultados
-arquivo_csv = 'resultados.csv'
+# Verificar se o caminho da pasta para os resultados é válido
+if not os.path.isdir(pasta_resultados):
+    print("Caminho inválido!")
+    exit(1)
 
-# Comparar as ASTs nos arquivos e armazenar os resultados no arquivo CSV
-comparar_ast(arquivos_ast, arquivo_csv)
+# Obter a lista de arquivos de texto nas subpastas da pasta principal
+arquivos_ast = []
+for diretorio_raiz, subpastas, arquivos in os.walk(pasta):
+    for arquivo in arquivos:
+        if arquivo.endswith('.txt'):
+            caminho_arquivo = os.path.join(diretorio_raiz, arquivo)
+            arquivos_ast.append(caminho_arquivo)
 
-print(f"Os resultados foram armazenados em: {arquivo_csv}")
+# Comparar as ASTs nos arquivos e armazenar os resultados em arquivos CSV separados
+comparar_ast(arquivos_ast, pasta_resultados)
+
+print("Os resultados foram armazenados em arquivos CSV na pasta indicada.")
