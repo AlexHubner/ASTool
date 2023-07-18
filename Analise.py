@@ -1,6 +1,7 @@
 import os
 import csv
 import difflib
+import sys
 
 # Função para comparar as ASTs em pares e armazenar as diferenças em um arquivo CSV
 def comparar_ast(arquivos, pasta_resultados):
@@ -45,7 +46,10 @@ def comparar_ast(arquivos, pasta_resultados):
                                                  'Profundidade': profundidade})
 
 # Solicitar o caminho da pasta
-pasta = input("Digite o caminho da pasta que contém os arquivos de texto com as ASTs: ")
+if len(sys.argv) > 1:
+    pasta = sys.argv[1]
+else:
+    pasta = input("Digite o caminho da pasta que contém os arquivos de texto com as ASTs: ")
 
 # Verificar se o caminho da pasta é válido
 if not os.path.isdir(pasta):
@@ -53,7 +57,10 @@ if not os.path.isdir(pasta):
     exit(1)
 
 # Solicitar o caminho da pasta para os resultados
-pasta_resultados = input("Digite o caminho da pasta para armazenar os resultados: ")
+if len(sys.argv) > 2:
+    pasta_resultados = sys.argv[2]
+else:
+    pasta_resultados = input("Digite o caminho da pasta para armazenar os resultados: ")
 
 # Verificar se o caminho da pasta para os resultados é válido
 if not os.path.isdir(pasta_resultados):

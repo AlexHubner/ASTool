@@ -1,10 +1,14 @@
 #!/bin/bash
 
+set -x
+
 #Solicitar o caminho da pasta com os arquivos C
-read -p "Digite o caminho da pasta que contém os arquivos C: " pasta_origem
+# read -p "Digite o caminho da pasta que contém os arquivos C: " pasta_origem
+pasta_origem=$1
 
 #Solicitar o caminho da pasta para salvar as ASTs
-read -p "Digite o caminho da pasta para salvar as ASTs: " pasta_destino
+# read -p "Digite o caminho da pasta para salvar as ASTs: " pasta_destino
+pasta_destino=$2
 
 #Função recursiva para percorrer as subpastas
 function percorrer_subpastas() {

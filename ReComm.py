@@ -1,9 +1,11 @@
 import os
 import shutil
+import sys
 
 def reorganize_files():
-    commits_path = input("Digite o caminho para a pasta dos commits: ")
-    output_path = input("Digite o caminho para a pasta de saída: ")
+    
+    commits_path = get_folder_path("Digite o caminho para a pasta dos commits: ", 1)
+    output_path = get_folder_path("Digite o caminho para a pasta de saída: ", 2)
 
     for root, _, files in os.walk(commits_path):
         for file_name in files:
@@ -19,6 +21,12 @@ def reorganize_files():
                 shutil.copy2(file_path, output_file)
 
                 print('Arquivo movido: {}'.format(output_file))
+
+def get_folder_path(prompt, index):
+    if len(sys.argv) > index:
+        return sys.argv[index]
+    else:
+        return input(prompt)
 
 if __name__ == '__main__':
     reorganize_files()

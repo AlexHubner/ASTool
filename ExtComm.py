@@ -1,8 +1,13 @@
 import subprocess
 import os
+import sys
 
 def extract_commits():
-    repo_path = input("Digite o caminho para o repositório local: ")
+
+    if len(sys.argv) > 1:
+        repo_path = sys.argv[1]
+    else:
+        repo_path = input("Digite o caminho para o repositório local: ")    
 
     commit_hash_command = 'git -C {} log --pretty=format:%H'.format(repo_path)  # Obtém os hashes de commit
     commit_hashes = subprocess.check_output(commit_hash_command.split()).decode().split('\n')
@@ -26,9 +31,20 @@ def extract_commits():
                 print('Arquivo não encontrado no commit {}: {}'.format(commit_hash, file_path))
                 continue
 
+            # Solicitar o caminho da pasta para os resultados
+            if len(sys.argv) > 2:
+                output_dir = sys.argv[2]
+            else:
+                output_dir = input("Digite o caminho da pasta de saida dos resultados: ")
+
+            # Verificar se o caminho da pasta para os resultados é válido
+            if not os.path.isdir(output_dir):
+                print("Caminho inválido!")
+                exit(1)
+
             # Cria o diretório de saída (se não existir)
-            output_dir = os.path.join('commits', commit_hash[:7])
-            os.makedirs(output_dir, exist_ok=True)
+            # output_dir = os.path.join('commits', commit_hash[:7])
+            # os.makedirs(output_dir, exist_ok=True)
 
             # Escreve o conteúdo binário do commit em um arquivo separado
             output_file = os.path.join(output_dir, file_path.replace('/', '-'))
