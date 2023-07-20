@@ -14,8 +14,9 @@ Build docker image
 
 Execute docker image
 
-    docker run -v /my/git/folder:/my/git/folder \
-               -v /my/project/folder:/my/project/folder \
-               -e GIT_READ_FOLDER=/my/git/folder astool
+    export UID && docker run -v /my/git/folder:/app/git \
+                             -v /my/project/folder:/app \
+                             -u $UID:$UID \
+                             astool /app/git
 
 
