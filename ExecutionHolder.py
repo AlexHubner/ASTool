@@ -28,8 +28,7 @@ def execute_steps():
 
     ext_comm_command = ["python", "ExtComm.py", GIT_FOLDER_PATH, PROCESSED_GIT_COMMITS_FOLDER]
     re_comm_command = ["python", "ReComm.py", PROCESSED_GIT_COMMITS_FOLDER, REORGANIZED_GIT_COMMITS_FOLDER]
-    # make_trees_command = ["python", "IN-CONSTRUCTION-MakeTrees.py", REORGANIZED_GIT_COMMITS_FOLDER, TREE_FOLDER]
-    make_trees_command = ["sh", "MakeTrees.sh", REORGANIZED_GIT_COMMITS_FOLDER, TREE_FOLDER]
+    make_trees_command = ["/bin/bash", "MakeTrees.sh", REORGANIZED_GIT_COMMITS_FOLDER, TREE_FOLDER]
     analise_command = ["python", "Analise.py", TREE_FOLDER, REPORT_FOLDER]
     medias_command = ["python", "Medias.py", REPORT_FOLDER, BUILDED_PATH]
 
