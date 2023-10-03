@@ -1,6 +1,8 @@
 import os
 import csv
 
+print("\nCalculando as médias de profundidade. AGUARDE... \n\n")
+
 def calcular_media_arquivo(nome_arquivo):
     soma = 0
     contador = 0
@@ -39,6 +41,6 @@ def calcular_media_geral(pasta):
     print("Cálculo das médias concluído. O arquivo 'media_geral.csv' foi gerado.")
 
 # Solicitar ao usuário a pasta de origem dos arquivos CSV
-pasta_origem = input("Digite o caminho da pasta com os arquivos CSV: ")
+pasta_origem = "analises"
 
 calcular_media_geral(pasta_origem)

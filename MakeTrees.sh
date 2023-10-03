@@ -1,57 +1,49 @@
 #!/bin/bash
 
-set -x
+# Pasta de entrada
+pasta_origem="commits_org"
 
-#Solicitar o caminho da pasta com os arquivos C
-# read -p "Digite o caminho da pasta que contém os arquivos C: " pasta_origem
-pasta_origem=$1
+# Pasta de saída
+pasta_destino="asts"
 
-#Solicitar o caminho da pasta para salvar as ASTs
-# read -p "Digite o caminho da pasta para salvar as ASTs: " pasta_destino
-pasta_destino=$2
-
-#Função recursiva para percorrer as subpastas
+# Função recursiva para percorrer as subpastas
 function percorrer_subpastas() {
-local pasta_atual=$1
-local pasta_relativa=${pasta_atual#$pasta_origem} # Obter a parte relativa do caminho
+    local pasta_atual=$1
+    local pasta_relativa=${pasta_atual#$pasta_origem} # Obter a parte relativa do caminho
 
-# Loop pelos arquivos C na pasta atual
-for arquivo in "$pasta_atual"/*.c; do
-    nome_arquivo=$(basename "$arquivo")
-    nome_sem_extensao="${nome_arquivo%.*}"
-    arquivo_saida="${pasta_destino}${pasta_relativa}/${nome_sem_extensao}.txt"  # Caminho de saída com a estrutura de subpastas preservada
+    # Loop pelos arquivos C na pasta atual
+    for arquivo in "$pasta_atual"/*.c; do
+        nome_arquivo=$(basename "$arquivo")
+        nome_sem_extensao="${nome_arquivo%.*}"
+        arquivo_saida="${pasta_destino}${pasta_relativa}/${nome_sem_extensao}.txt"  # Caminho de saída com a estrutura de subpastas preservada
 
-    # Criar a pasta de destino, se não existir
-    mkdir -p "$(dirname "$arquivo_saida")"
+        # Criar a pasta de destino, se não existir
+        mkdir -p "$(dirname "$arquivo_saida")"
 
-    # Gerar a AST do arquivo e gravar em um arquivo de texto
-    clang -Xclang -detailed-preprocessing-record -Xclang -ast-dump "$arquivo" > "$arquivo_saida"
+        # Gerar a AST do arquivo e gravar em um arquivo de texto (suprimindo os erros)
+        clang -Xclang -detailed-preprocessing-record -Xclang -ast-dump "$arquivo" > "$arquivo_saida" 2>/dev/null
+    done
 
-    echo "AST gerada para o arquivo $nome_arquivo e gravada em $arquivo_saida"
-done
-
-# Loop pelas subpastas na pasta atual
-for subpasta in "$pasta_atual"/*; do
-    if [ -d "$subpasta" ]; then
-        percorrer_subpastas "$subpasta"
-    fi
-done
-
+    # Loop pelas subpastas na pasta atual
+    for subpasta in "$pasta_atual"/*; do
+        if [ -d "$subpasta" ]; then
+            percorrer_subpastas "$subpasta"
+        fi
+    done
 }
 
-#Verificar se o caminho da pasta origem é válido
+# Verificar se a pasta de entrada existe
 if [ ! -d "$pasta_origem" ]; then
-echo "Caminho da pasta origem inválido!"
-exit 1
+    echo "A pasta de entrada 'commits_org' não foi encontrada!"
+    exit 1
 fi
 
-#Verificar se o caminho da pasta destino é válido
+# Verificar se a pasta de saída existe ou criar se não existir
 if [ ! -d "$pasta_destino" ]; then
-echo "Caminho da pasta destino inválido!"
-exit 1
+    mkdir -p "$pasta_destino"
 fi
 
-#Chamada inicial para percorrer as subpastas
+# Chamada inicial para percorrer as subpastas
 percorrer_subpastas "$pasta_origem"
 
 echo "ARVORES CRIADAS!"

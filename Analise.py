@@ -1,7 +1,12 @@
 import os
 import csv
 import difflib
-import sys
+
+print("Fazendo as análises. AGUARDE... \n\n")
+
+# Função para calcular a média de uma lista de valores numéricos
+def calcular_media(lista):
+    return sum(lista) / len(lista)
 
 # Função para comparar as ASTs em pares e armazenar as diferenças em um arquivo CSV
 def comparar_ast(arquivos, pasta_resultados):
@@ -21,10 +26,12 @@ def comparar_ast(arquivos, pasta_resultados):
                 nome_pasta_novo = os.path.basename(os.path.dirname(arquivo_novo))
 
                 # Criar o nome do arquivo de resultado
-                nome_arquivo_resultado = f'resultado_{nome_pasta_novo}.csv'
+                nome_arquivo_resultado = f'resultadoMedia_{nome_pasta_novo}.csv'
 
                 # Caminho completo para o arquivo de resultado
                 caminho_arquivo_resultado = os.path.join(pasta_resultados, nome_arquivo_resultado)
+
+                profundidades = []  # Lista para armazenar as profundidades para o cálculo da média
 
                 with open(caminho_arquivo_resultado, 'w', newline='') as csvfile:
                     fieldnames = ['Arquivo', 'Arquivo Comparado', 'Nó Modificado', 'Profundidade']
@@ -38,6 +45,7 @@ def comparar_ast(arquivos, pasta_resultados):
 
                             # Calcular a profundidade do nó alterado
                             profundidade = no_alterado.count('  ')
+                            profundidades.append(profundidade)
 
                             if profundidade > 0:
                                 writer.writerow({'Arquivo': nome_pasta_novo,
@@ -45,11 +53,13 @@ def comparar_ast(arquivos, pasta_resultados):
                                                  'Nó Modificado': no_alterado,
                                                  'Profundidade': profundidade})
 
+                    # Calcular a média das profundidades e escrever a linha "média" no arquivo
+                    if profundidades:
+                        media_profundidades = calcular_media(profundidades)
+                        writer.writerow({'Arquivo': '', 'Arquivo Comparado': '', 'Nó Modificado': 'Média', 'Profundidade': media_profundidades})
+
 # Solicitar o caminho da pasta
-if len(sys.argv) > 1:
-    pasta = sys.argv[1]
-else:
-    pasta = input("Digite o caminho da pasta que contém os arquivos de texto com as ASTs: ")
+pasta = 'asts'
 
 # Verificar se o caminho da pasta é válido
 if not os.path.isdir(pasta):
@@ -57,10 +67,8 @@ if not os.path.isdir(pasta):
     exit(1)
 
 # Solicitar o caminho da pasta para os resultados
-if len(sys.argv) > 2:
-    pasta_resultados = sys.argv[2]
-else:
-    pasta_resultados = input("Digite o caminho da pasta para armazenar os resultados: ")
+pasta_resultados = os.path.join('analises')
+os.makedirs(pasta_resultados, exist_ok=True)
 
 # Verificar se o caminho da pasta para os resultados é válido
 if not os.path.isdir(pasta_resultados):
